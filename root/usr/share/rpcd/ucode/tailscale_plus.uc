@@ -826,8 +826,12 @@ methods.setup_firewall = {
 			push(reload, '/etc/init.d/firewall reload');
 		}
 
+		// Give rpcd time to deliver this reply first: the reload can drop
+		// the connection that carries it, for example when LuCI is used
+		// over Tailscale or behind a reverse proxy, and the browser would
+		// report a failure although the change was applied.
 		if (length(reload) > 0)
-			run_detached(join('; ', reload));
+			run_detached('sleep 2; ' + join('; ', reload));
 
 		return {
 			success: true,
